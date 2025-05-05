@@ -69,14 +69,14 @@ With this is posible to set, clear, read, toggle GPIOs.
 
 With this is possible to control/read a external SPIs devices
 
-   -setBitOrder(SPI_MSB_FIRST)
-   -setDataMode(SPI_MODE_0)
-   -set ClockDivider(divider = 500000)
+   - setBitOrder(SPI_MSB_FIRST);
+   - setDataMode(SPI_MODE_0);
+   - set ClockDivider(divider = 500000);
 
-   -transfer(tx,rx,length)
-   -sendCommand(cmd)
-   -sendData(data,length)
-   -receiveData(rx,length)
+   - transfer(tx,rx,length);
+   - sendCommand(cmd);
+   - sendData(data,length);
+   - receiveData(rx,length);
 
 # Information
 
