@@ -1,0 +1,3 @@
+# Ignorar archivos .o en todas las carpetas
+*.o
+*.a
