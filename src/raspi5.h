@@ -11,6 +11,9 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <linux/spi/spidev.h>
+#ifndef SPI_MSB_FIRST
+#define SPI_MSB_FIRST 0
+#endif
 
 // Clase ControlPin para controlar un GPIO
 class ControlPin {
@@ -35,10 +38,17 @@ class SpiDevice {
     public:
         SpiDevice(const std::string& device, uint32_t speed = 500000);
         ~SpiDevice();
-    
+
+        // Config the order of the PINs (MSB by default)
+        void setBitOrder(int order = SPI_MSB_FIRST);
+
+        // Config the SPI mode (0 by default)
+        void setDataMode(uint8_t mode = SPI_MODE_0);
+
+        // Config the SPI speed (500000 by default)
+        void setClockDivider(uint32_t divider = 500000);
+
         bool transfer(uint8_t* tx, uint8_t* rx, size_t length);
-
-
         bool sendCommand(uint8_t cmd);
         bool sendData(const uint8_t* data, size_t length);
         bool receiveData(uint8_t* rx, size_t length);
@@ -49,5 +59,7 @@ class SpiDevice {
         int dcPin = 24;
         int fd;
         uint32_t speed;
+        uint8_t mode;
+        int bitOrder;
     };
 #endif

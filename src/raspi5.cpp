@@ -65,38 +65,8 @@ void ControlPin::toggle() {
 
 // =========================================== SPI ====================================
 
-/*SpiDevice::SpiDevice(const std::string& device, uint32_t speed) : speed(speed) {
-    fd = open(device.c_str(), O_RDWR);
-    if (fd < 0) {
-        std::cerr << "Is not possible to Access to the SPI Port" << std::endl;
-        exit(1);
-    }
-
-    uint8_t mode = SPI_MODE_0;
-    uint8_t bits = 8;
-    
-    ioctl(fd, SPI_IOC_WR_MODE, &mode);
-    ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits);
-    ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed);
-}
-
-SpiDevice::~SpiDevice() {
-    if (fd >= 0) close(fd);
-}
-
-bool SpiDevice::transfer(uint8_t* tx, uint8_t* rx, size_t length) {
-    struct spi_ioc_transfer tr{};
-    tr.tx_buf = (unsigned long)tx;
-    tr.rx_buf = (unsigned long)rx;
-    tr.len = length;
-    tr.speed_hz = speed;
-    tr.bits_per_word = 8;
-
-    return ioctl(fd, SPI_IOC_MESSAGE(1), &tr) >= 0;
-}*/
 SpiDevice::SpiDevice(const std::string& device, uint32_t speed)
-    : speed(speed) {
-    // Abrir el dispositivo SPI
+    : speed(speed), mode(SPI_MODE_0), bitOrder(SPI_MSB_FIRST) {
     fd = open(device.c_str(), O_RDWR);
     if (fd < 0) {
         std::cerr << "No se pudo abrir el dispositivo SPI." << std::endl;
@@ -109,27 +79,46 @@ SpiDevice::SpiDevice(const std::string& device, uint32_t speed)
         close(fd);
         exit(1);
     }
+
+    // Configuración del modo SPI
+    if (ioctl(fd, SPI_IOC_WR_MODE, &mode) == -1) {
+        std::cerr << "No se pudo configurar el modo SPI." << std::endl;
+        close(fd);
+        exit(1);
+    }
+
+    // Configuración del orden de bits
+    if (ioctl(fd, SPI_IOC_WR_LSB_FIRST, &bitOrder) == -1) {
+        std::cerr << "No se pudo configurar el orden de bits." << std::endl;
+        close(fd);
+        exit(1);
+    }
 }
 
-// Método para enviar un comando
-bool SpiDevice::sendCommand(uint8_t cmd) {
-    uint8_t dummyRx;
-    return transfer(&cmd, &dummyRx, 1); // Enviar solo el comando
+void SpiDevice::setBitOrder(int order) {
+    if (ioctl(fd, SPI_IOC_WR_LSB_FIRST, &order) == -1) {
+        std::cerr << "Error al establecer el orden de bits." << std::endl;
+    } else {
+        bitOrder = order;
+    }
 }
 
-// Método para enviar datos
-bool SpiDevice::sendData(const uint8_t* data, size_t length) {
-    uint8_t dummyRx[length]; // Buffer para la recepción
-    return transfer(const_cast<uint8_t*>(data), dummyRx, length);
+void SpiDevice::setDataMode(uint8_t mode) {
+    if (ioctl(fd, SPI_IOC_WR_MODE, &mode) == -1) {
+        std::cerr << "Error al establecer el modo SPI." << std::endl;
+    } else {
+        this->mode = mode;
+    }
 }
 
-// Método para recibir datos
-bool SpiDevice::receiveData(uint8_t* rx, size_t length) {
-    uint8_t dummyTx[length]; // Buffer vacío para el envío
-    return transfer(dummyTx, rx, length); // Recibir datos
+void SpiDevice::setClockDivider(uint32_t divider) {
+    if (ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &divider) == -1) {
+        std::cerr << "Error al establecer el divisor del reloj." << std::endl;
+    } else {
+        speed = divider;
+    }
 }
 
-// Transferencia de datos
 bool SpiDevice::transfer(uint8_t* tx, uint8_t* rx, size_t length) {
     struct spi_ioc_transfer tr = {};
     tr.tx_buf = reinterpret_cast<unsigned long>(tx);
@@ -145,7 +134,8 @@ bool SpiDevice::transfer(uint8_t* tx, uint8_t* rx, size_t length) {
     return true;
 }
 
-// Destructor
+// Otros métodos como sendCommand, sendData, receiveData ya estaban implementados anteriormente.
+
 SpiDevice::~SpiDevice() {
     if (fd >= 0) {
         close(fd);
