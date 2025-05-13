@@ -1,3 +1,6 @@
 # Ignorar archivos .o en todas las carpetas
 *.o
 *.a
+*/trash
+examples/main
+*.last_target
