@@ -17,7 +17,7 @@ TFTSCREEN::TFTSCREEN(int tftled, int tftrst, int tftdc, uint16_t anchop, uint16_
 void TFTSCREEN::start(){
     TFTInit();
     TFTInitPCBType(TFT_ST7735S_Black, 0); // Inicializa el tipo de PCB
-    ready_to_paint();
+    ready_to_paint(0,0, ancho-1, alto-1); // Prepara la pantalla para pintar
     uint8_t color[2] = {0xA1, 0xA1}; // Color rojo
     for (int i = 0; i < 128 * 160; ++i) {
         sendData(color, sizeof(color));
@@ -188,8 +188,17 @@ void TFTSCREEN::sendData(const uint8_t* data, size_t length) {
     tft_spi.transfer(const_cast<uint8_t*>(data), mutableRx.data(), length);
 }
 
-void TFTSCREEN::ready_to_paint(){
-    sendCommand(ST7735_CASET);
+void TFTSCREEN::ready_to_paint(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1){
+    sendCommand(ST7735_CASET); // Set column address
+    uint8_t col[] = {0x00, x0, 0x00, x1}; // 0–127
+    sendData(col, sizeof(col));
+    sendCommand(ST7735_RASET); // Set row address
+    uint8_t row[] = {0x00, y0, 0x00, y1}; // 0–159
+    sendData(row, sizeof(row));
+    sendCommand(ST7735_RAMWR); // Write to RAM
+
+    
+    /* sendCommand(ST7735_CASET);
     uint8_t col[] = {0x00, 0x00, 0x00, 0x7F}; // 0–127
     sendData(col, sizeof(col));
 
@@ -198,6 +207,7 @@ void TFTSCREEN::ready_to_paint(){
     sendData(row, sizeof(row));
 
     sendCommand(ST7735_RAMWR); // Write Memory Start (0x2C)
+    */
 
     /*sendCommand(ST7735_CASET); // Set column range
     uint8_t caset[] = {0x00, 0x00, 0x00, uint8_t(ancho - 1)};
@@ -222,7 +232,7 @@ void TFTSCREEN::backLight(bool state){
 // ---------------------------------------------------------------------------
 
 void TFTSCREEN::fillScreen(uint16_t color) {
-    ready_to_paint(); // Prepara la pantalla para escribir
+    ready_to_paint(0, 0, ancho - 1, alto - 1); // Prepara la pantalla para escribir
 
     uint8_t high = (color >> 8) & 0xFF;
     uint8_t low = color & 0xFF;
@@ -247,6 +257,28 @@ void TFTSCREEN::fillScreen(uint16_t color) {
     }
 }
 
+void TFTSCREEN::drawPixel(int16_t x, int16_t y, uint16_t color) {
+    if (x < 0 || x >= ancho || y < 0 || y >= alto) {
+        return; // Fuera de los límites de la pantalla
+    }
+
+    ready_to_paint(x,y,x+1,y+1); // Prepara la pantalla para escribir
+
+    /*sendCommand(ST7735_CASET); // Set column address
+    uint8_t col[] = {0x00, uint8_t(x), 0x00, uint8_t(x)};
+    sendData(col, sizeof(col));
+
+    sendCommand(ST7735_RASET); // Set row address
+    uint8_t row[] = {0x00, uint8_t(y), 0x00, uint8_t(y)};
+    sendData(row, sizeof(row));
+
+    sendCommand(ST7735_RAMWR); // Write to RAM*/
+
+    uint8_t high = (color >> 8) & 0xFF;
+    uint8_t low = color & 0xFF;
+    uint8_t pixel[] = {high, low};
+    sendData(pixel, sizeof(pixel));
+}
 
 
 

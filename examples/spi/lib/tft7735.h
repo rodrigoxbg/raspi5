@@ -162,7 +162,7 @@ class TFTSCREEN {
         
         // ============================= [Funciones de la pantalla] ==============================
         void fillScreen(uint16_t color);
-
+        void drawPixel(int16_t x, int16_t y, uint16_t color);
         // ======================================================================================
 
         
@@ -195,7 +195,7 @@ class TFTSCREEN {
 	    void Rcmd3(void);
         void Rcmd2green(void);
 
-        void ready_to_paint();
+        void ready_to_paint(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1);
         // -----------------------------------------------------------------------
 
 
