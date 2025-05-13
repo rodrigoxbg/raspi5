@@ -160,6 +160,11 @@ class TFTSCREEN {
         uint8_t TFTInitPCBType(TFT_PCBtype_e pcbType, uint16_t CommDelay); // SW SPI
 	    //uint8_t TFTInitPCBType(TFT_PCBtype_e pcbType, uint32_t hertz = 0, uint8_t SPICE_Pin = 0 ); // HW SPI
         
+        // ============================= [Funciones de la pantalla] ==============================
+        void fillScreen(uint16_t color);
+
+        // ======================================================================================
+
         
         void drawText(int x, int y, const std::string& text, uint16_t color, uint16_t bgcolor, uint8_t size);
         uint16_t RGBtoBGR(uint16_t color);
@@ -190,6 +195,7 @@ class TFTSCREEN {
 	    void Rcmd3(void);
         void Rcmd2green(void);
 
+        void ready_to_paint();
         // -----------------------------------------------------------------------
 
 

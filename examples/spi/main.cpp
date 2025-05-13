@@ -13,7 +13,14 @@ int main() {
     tft.backLight(true); // Encender el LED de fondo
 
     std::cout << "ST7735 Inicializado." << std::endl;
-    sleep(1); // wait 1 second
+    sleep(3); // wait 1 second
+    std::cout << "ST7735 Poniendo background color plomo oscuro." << std::endl;
+    tft.fillScreen(ST7735_GREY);
+    sleep(3); // wait 1 second
+    std::cout << "ST7735 Poniendo background color rojo." << std::endl;
+    tft.fillScreen(ST7735_RED);
+    sleep(3); // wait 1 second
+    std::cout << "Test de SPI terminado." << std::endl;
 
     return 0;
 }   

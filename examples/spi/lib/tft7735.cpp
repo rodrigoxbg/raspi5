@@ -11,21 +11,13 @@ using namespace std;
 
 TFTSCREEN::TFTSCREEN(int tftled, int tftrst, int tftdc, uint16_t anchop, uint16_t altop)
     : pinled(tftled), pinrst(tftrst), pindc(tftdc), ancho(anchop), alto(altop),
-      tft_led(tftled,true),tft_dc(tftdc, true), tft_rst(tftrst, true), tft_spi("/dev/spidev0.0") {
+      tft_led(tftled,true),tft_dc(tftdc, true), tft_rst(tftrst, true), tft_spi("/dev/spidev0.0", sck_freq) {
 }
 
 void TFTSCREEN::start(){
     TFTInit();
     TFTInitPCBType(TFT_ST7735S_Black, 0); // Inicializa el tipo de PCB
-    sendCommand(ST7735_CASET);
-    uint8_t col[] = {0x00, 0x00, 0x00, 0x7F}; // 0–127
-    sendData(col, sizeof(col));
-
-    sendCommand(ST7735_RASET);
-    uint8_t row[] = {0x00, 0x00, 0x00, 0x9F}; // 0–159
-    sendData(row, sizeof(row));
-
-    sendCommand(ST7735_RAMWR); // Write Memory Start (0x2C)
+    ready_to_paint();
     uint8_t color[2] = {0xA1, 0xA1}; // Color rojo
     for (int i = 0; i < 128 * 160; ++i) {
         sendData(color, sizeof(color));
@@ -196,10 +188,72 @@ void TFTSCREEN::sendData(const uint8_t* data, size_t length) {
     tft_spi.transfer(const_cast<uint8_t*>(data), mutableRx.data(), length);
 }
 
+void TFTSCREEN::ready_to_paint(){
+    sendCommand(ST7735_CASET);
+    uint8_t col[] = {0x00, 0x00, 0x00, 0x7F}; // 0–127
+    sendData(col, sizeof(col));
+
+    sendCommand(ST7735_RASET);
+    uint8_t row[] = {0x00, 0x00, 0x00, 0x9F}; // 0–159
+    sendData(row, sizeof(row));
+
+    sendCommand(ST7735_RAMWR); // Write Memory Start (0x2C)
+
+    /*sendCommand(ST7735_CASET); // Set column range
+    uint8_t caset[] = {0x00, 0x00, 0x00, uint8_t(ancho - 1)};
+    sendData(caset, sizeof(caset));
+
+    sendCommand(ST7735_RASET); // Set row range
+    uint8_t raset[] = {0x00, 0x00, 0x00, uint8_t(alto - 1)};
+    sendData(raset, sizeof(raset));
+
+    sendCommand(ST7735_RAMWR); // Write to RAM*/
+}
+
 
 void TFTSCREEN::backLight(bool state){
     tft_led.setValue(state ? 1 : 0);
 }
+
+
+// ===========================================================================
+// ---------------------------------------------------------------------------
+// [ Funciones de la Pantalla ]
+// ---------------------------------------------------------------------------
+
+void TFTSCREEN::fillScreen(uint16_t color) {
+    ready_to_paint(); // Prepara la pantalla para escribir
+
+    uint8_t high = (color >> 8) & 0xFF;
+    uint8_t low = color & 0xFF;
+    /*
+    uint8_t pixel[] = {high, low};
+    for (int i = 0; i < ancho * alto; ++i) {
+        sendData(pixel, 2);
+    }*/
+    size_t totalPixels = ancho * alto;
+    size_t blockSize = 1024; // Puedes ajustar esto
+
+    std::vector<uint8_t> block(blockSize * 2);
+    for (size_t i = 0; i < blockSize; ++i) {
+        block[2 * i] = high;
+        block[2 * i + 1] = low;
+    }
+
+    while (totalPixels > 0) {
+        size_t chunk = std::min(blockSize, totalPixels);
+        sendData(block.data(), chunk * 2);
+        totalPixels -= chunk;
+    }
+}
+
+
+
+
+
+
+
+
 
 /*
 void TFTSCREEN::drawText(int x, int y, const std::string& text, uint16_t color, uint16_t bgcolor, uint8_t size) {
