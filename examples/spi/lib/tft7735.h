@@ -12,8 +12,6 @@
 
 // Colors could be selected from: https://rgbcolorpicker.com/565
 
-
-
 // La fuente es generada con GLCDFontCreator 2
 // Y deben ser incluidas en los archivos donde van a ser utilizados, aqui solo es un ejemplo
 // si activamos estas ocuparán mucho espacion en memoria.
@@ -22,12 +20,6 @@
 //#include "../utils/fonts/tekosemibold.h"
 //#include "../utils/fonts/tekosemibold12.h"
 //#include "../utils/fonts/tekosemibold24.h"
-
-// ============================ Para control de los GPIO de la Rpi5 ===============================
-/*struct GPIOPin {
-    gpiod_chip* chip;
-    gpiod_line* line;
-};*/
 
 // ============================= TFT Registers Declaration ===============================
 #define ST7735_NOP     0x00 /**< Non operation */
@@ -111,17 +103,6 @@
 
 
 // ============================ Para control de los GPIO de la Rpi5 ===============================
-
-
-
-
-/*
-struct GPIOPin {
-    gpiod_chip* chip = nullptr;
-    gpiod_line* line = nullptr;
-};
-*/
-
 // ============================ Para control de las fuentes de texto ===============================
 struct mFont {
     const unsigned char* data;  // Puntero a los datos de la fuente
@@ -157,26 +138,82 @@ class TFTSCREEN {
         void start();
         //void drawText(int x, int y, const char* text, uint16_t color, uint16_t bgcolor, uint8_t size, bool wrap = false);
         void backLight(bool state);
-        uint8_t TFTInitPCBType(TFT_PCBtype_e pcbType, uint16_t CommDelay); // SW SPI
+        uint8_t TFTInitPCBType(TFT_PCBtype_e pcbType); // SW SPI
+        //uint8_t TFTInitPCBType(TFT_PCBtype_e pcbType, uint16_t CommDelay); // SW SPI
 	    //uint8_t TFTInitPCBType(TFT_PCBtype_e pcbType, uint32_t hertz = 0, uint8_t SPICE_Pin = 0 ); // HW SPI
-        
-        // ============================= [Funciones de la pantalla] ==============================
+
+        void colorInvert(bool invert);
+
+
+        // ============================= [Funciones Graph de la pantalla] ==============================
         void fillScreen(uint16_t color);
         void drawPixel(int16_t x, int16_t y, uint16_t color);
+        void drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color);
+        void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
+        void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
+        void drawRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
+        void fillRectangle(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
+        void drawRoundRect(int16_t x, int16_t y, int16_t w, int16_t h, int16_t r, uint16_t color);
+        void fillRoundRect(int16_t x, int16_t y, int16_t w, int16_t h, int16_t r, uint16_t color);
+        void drawCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color);
+        void fillCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color);
+        void drawTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color);
+        void fillTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color);
+
+
+        // -------- FUNCIONES de ESCRITURA --------------------------------------------------------------------------------
+        void loadFont(const mFont& fuente);
+        void printText(int x, int y, const std::string& text, uint16_t color, uint16_t bgcolor=0xFF, bool transparent=true);
+    
+        // Para texto y fuentes
+        mFont currentFont;
+        uint8_t* textBuffer;           // Buffer para almacenar el texto
+        int bufferWidth, bufferHeight;  // Dimensiones del buffer
+        uint16_t* char_widthts;         // Ancho de cada caracter
+        uint16_t* font_data;            // Datos de la fuente
+        int font_group_size;                 // Tamaño de grupo de caracteres a obtener de la matriz general (multiplos)
+        int text_spacing;               // Espacio entre caracteres
+        uint8_t getCharWidth(uint8_t c);
+        uint8_t *getCharArray(uint8_t c);
+        void drawCustomChar(uint8_t x, uint8_t y, char c, uint16_t color, uint16_t bgcolor=0xFF, bool transparent=true);
+        void drawCustomText(uint8_t x, uint8_t y, const std::string& text, uint16_t color, uint16_t bgcolor=0xFF, bool transparent=true);
+        //--------------- FUNCIONES de Imagenes y Gráficos ------------------------------------------------
+        
+        uint8_t drawIcon(uint8_t x, uint8_t y, uint8_t w, uint16_t color, uint16_t bgcolor, const unsigned char character[]);
+        uint8_t drawBitmap(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color, uint16_t bgcolor, uint8_t *pBmp);
+        uint8_t drawBitmap24(uint8_t x, uint8_t y, uint8_t *pBmp, char w, char h);
+        uint8_t drawBitmap16(uint8_t x, uint8_t y, uint8_t *pBmp, char w, char h);
+
+        void showImageJPG(const char *filename, int x, int y);
+
+        //-------------------
+
+
+        /*void TFTsetTextWrap(bool w);
+        void TFTFontNum(TFT_Font_Type_e FontNumber);
+        uint8_t TFTdrawChar(uint8_t x, uint8_t y, uint8_t c, uint16_t color, uint16_t bg, uint8_t size);
+        uint8_t TFTdrawChar(uint8_t x, uint8_t y, uint8_t c, uint16_t color ,uint16_t bg);
+        uint8_t TFTdrawText(uint8_t x, uint8_t y, char *ptext, uint16_t color, uint16_t bg, uint8_t size);
+        uint8_t TFTdrawText(uint8_t x, uint8_t y, char *pText, uint16_t color, uint16_t bg);
+        void setTextColor(uint16_t c);
+        void setTextColor(uint16_t c, uint16_t bg);
+        void setTextSize(uint8_t s);*/
+
+
+
         // ======================================================================================
 
         
         void drawText(int x, int y, const std::string& text, uint16_t color, uint16_t bgcolor, uint8_t size);
         uint16_t RGBtoBGR(uint16_t color);
 
-        void showImageJGP(const char *filename, int x, int y);
         void popup_loading();
 
         // -----------------------------------------------------------------------------------------------------------------
         // Funciones para texto y fuentes
         // -----------------------------------------------------------------------------------------------------------------
-        void loadFont(const mFont& fuente);
-        void printText(int x, int y, const std::string& text, uint16_t color, uint16_t bgcolor=0xFF, bool transparent=true);
+        //void loadFont(const mFont& fuente);
+        //void printText(int x, int y, const std::string& text, uint16_t color, uint16_t bgcolor=0xFF, bool transparent=true);
         //------------------------------------------------------------------------------------------------------------------
     private:
         // .............................................................................................................
@@ -197,20 +234,13 @@ class TFTSCREEN {
 
         void ready_to_paint(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1);
         // -----------------------------------------------------------------------
+        // Funciones HELPER
+        void drawCircleHelper(int16_t x0, int16_t y0, int16_t r, uint8_t cornername, uint16_t color);
+        void fillCircleHelper(int16_t x0, int16_t y0, int16_t r, uint8_t cornername, int16_t delta, uint16_t color);
+        bool pointInTriangle(int16_t x, int16_t y, int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2);
+        int16_t Color565(int16_t ,int16_t , int16_t );
+        // ------------------------------------
 
-
-        // Para texto y fuentes
-        mFont currentFont;
-        uint8_t* textBuffer;           // Buffer para almacenar el texto
-        int bufferWidth, bufferHeight;  // Dimensiones del buffer
-        uint16_t* char_widthts;         // Ancho de cada caracter
-        uint16_t* font_data;            // Datos de la fuente
-        int font_group_size;                 // Tamaño de grupo de caracteres a obtener de la matriz general (multiplos)
-        int text_spacing;               // Espacio entre caracteres
-        uint8_t getCharWidth(uint8_t c);
-        uint8_t *getCharArray(uint8_t c);
-        void drawCustomChar(uint8_t x, uint8_t y, char c, uint16_t color, uint16_t bgcolor=0xFF, bool transparent=true);
-        void drawCustomText(uint8_t x, uint8_t y, const std::string& text, uint16_t color, uint16_t bgcolor=0xFF, bool transparent=true);
         // .............................................................................................................
 
         int pinled;
@@ -218,6 +248,9 @@ class TFTSCREEN {
         int pindc;
         int ancho;
         int alto;
+
+        uint8_t _widthTFT;
+        uint8_t _heightTFT;
 
         int sck_freq = 8000000;
         int spi_ce = 0;
@@ -230,12 +263,6 @@ class TFTSCREEN {
         ControlPin tft_rst;
         SpiDevice tft_spi;
 
-        
-        
-        // GPIO para los pines
-        /*GPIOPin gpio_led; // Para el led de la pantalla
-        GPIOPin gpio_rst; // Para el reset de la pantalla
-        GPIOPin gpio_dc;  // Para el pin de datos/comando de la pantalla*/
 };
 
 

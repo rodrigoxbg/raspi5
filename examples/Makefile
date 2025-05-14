@@ -1,6 +1,6 @@
 CXX = g++
 CXXFLAGS = -Wall -Wextra -std=c++17
-LDFLAGS = -lrt -lraspi5 -lgpiod
+LDFLAGS = -lrt -lraspi5 -lgpiod -ljpeg
 
 
 TARGET ?= digital
@@ -33,5 +33,15 @@ run: $(OUT)
 clean:
 	find -name main -type f -exec rm -f {} \;
 	rm -f $(LAST_TARGET_FILE)
+
+# The code bellow is for the SPI project (It cleans, compile and execute)
+# is done to make the programming process faster
+super:
+	make clean
+	echo "---------------------------- \033[0;33m[All things deleted]\033[0m"
+	make TARGET=spi
+	echo "---------------------------- \033[0;33m[SPI project Compiled]\033[0m"
+	echo "---------------------------- \033[0;33m[SPI project Running]\033[0m"
+	make run
 
 .PHONY: all clean run check_target
