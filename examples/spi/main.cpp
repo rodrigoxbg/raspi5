@@ -52,12 +52,12 @@ void screen_boot(){
     //mFont teXTFont2 = {TekoSemiBold12, 10, 13}; // Widht, height. Normalmente height es el tamaño de la fuente
     tft.fillScreen(0x2925); // Color gris oscuro
     tft.loadFont(teXTFont);
-    tft.printText(2, 5, "Hola Mundo !", ST7735_WHITE, ST7735_GREY);
+    tft.printText(4, 5, "Hola Mundo !", ST7735_WHITE, ST7735_GREY);
     tft.backLight(true); // Turn on the backlight LED
     sleep(4); // wait 4 second stability
     
     tft.showImageJPG("spi/lib/utils/bg/raspberrypi1.jpg", 0, 0);
-    tft.printText(40, 145, "Loading ...", ST7735_WHITE, ST7735_GREY);
+    tft.printText(4, 145, "Loading ...", ST7735_GREEN, ST7735_GREY);
     sleep(4); // wait 4 second stability
 }
 
@@ -71,7 +71,7 @@ void screen_tour(){
     //_
     //----------------- [ Introduce a PIXEL ] -------------------
     tft.fillScreen(ST7735_BLACK);
-    tft.printText(24, 10, "This is a Pixel", ST7735_WHITE, ST7735_GREY, true);
+    tft.printText(26, 10, "This is a Pixel", ST7735_WHITE, ST7735_GREY, true);
     tft.drawFastVLine(64, 30, 50, ST7735_GREY);
     tft.drawLine(64, 85, 54, 75, ST7735_GREY);
     tft.drawLine(64, 85, 74, 75, ST7735_GREY);

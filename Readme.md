@@ -51,6 +51,7 @@ Use the following commands to single control a GPIO
    ```bash
       raspi5 setgpio 13    <-- Put the GPIO13 in HIGH level
       raspi5 cleargpio 13  <-- Put the GPIO13 in LOW level
+      raspi5 pulsegpio 13  <-- Send a Pulse Signal to the GPIO13 (300ms)
    ```
 
 # Functions of the Library (Raspi5.h)

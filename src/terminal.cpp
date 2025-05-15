@@ -1,5 +1,6 @@
 #include "raspi5.h"
 #include <vector>
+#include <chrono>
 void processCommand(int argc, char *argv[]) {
     if (argc < 2) {
         std::cerr << "Unknown Command. Usa: raspi5 setgpio <pin> o raspi5 cleargpio <pin>" << std::endl;
@@ -20,6 +21,16 @@ void processCommand(int argc, char *argv[]) {
         ControlPin pinControl(pin, true);  // Configura el pin como salida
         pinControl.setValue(0);            // Establece el valor a LOW (0)
         std::cout << "Pin " << pin << " configurado a LOW." << std::endl;
+    } 
+    else if (command == "pulsegpio" && argc == 3) {
+        int pin = std::stoi(argv[2]);
+        ControlPin pinControl(pin, true);  // Configura el pin como salida
+        pinControl.setValue(1);            // Establece el valor a HIGH (1)
+        std::cout << "Pin " << pin << ": --------[High]-------->";
+        usleep(300000);
+        std::cout << " (300 ms) ";
+        pinControl.setValue(0);            // Establece el valor a LOW (0)
+        std::cout << "--------[LOW]-------->"<< std::endl;
     } 
     else {
         std::cerr << "Comando no válido. Usa: raspi5 setgpio <pin> o raspi5 cleargpio <pin>" << std::endl;
@@ -47,6 +58,7 @@ int main(int argc, char *argv[]) {
         std::cout << "Commands availables:\n";
         std::cout << "  raspi5 setgpio <pin>      - Set the GPIO #pin to HIGH\n";
         std::cout << "  raspi5 cleargpio <pin>    - Set the GPIO #pin to LOW\n";
+        std::cout << "  raspi5 pulsegpio <pin>    - Set the GPIO #pin to HIGH and LOW (300ms)\n";
         std::cout << "  raspi5 -pinout            - Show the Raspberry Pi 5 PinOut\n";
         std::cout << "  raspi5 -map               - (Soon)\n";
         std::cout << "--------------------------------\n";
