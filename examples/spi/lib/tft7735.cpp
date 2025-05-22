@@ -451,12 +451,24 @@ void TFTSCREEN::drawCustomText(uint8_t x, uint8_t y, const std::string& text, ui
     int total_data_with_spaces = acum_lenghts + (text.length()-1);
     textBuffer = new uint8_t[total_data_with_spaces];
 
-    //uint8_t* charData = getCharArray(text[0]); // Por alguna razón esto no se debe borrar, porque se pierde la referencia
+    uint8_t* charData = getCharArray(text[0]); // Por alguna razón esto no se debe borrar, porque se pierde la referencia
     for(size_t p=0; p<text.length(); p++){
-        uint8_t* charData = getCharArray(text[p]);       
+        uint8_t* charData = getCharArray(text[p]);
+        //delete[] charData; // Así no filtras memoria       
     }
-    // OJO no borrar el loop de arriba -------------------------
+    //OJO no borrar el loop de arriba -------------------------
+    /*
+    int indexion = 0;
+    for(size_t p = 0; p < text.length(); p++){
+        uint8_t* charData = getCharArray(text[p]);
+        for(int i = 0; i < font_group_size * getCharWidth(text[p]); i++){
+            textBuffer[indexion++] = charData[i];
+        }
+        delete[] charData; // ✅ Esto evita el double free
+    }
+    */
 
+    
     int index = 0;
     for(size_t p=0; p<text.length(); p++){
         uint8_t* charData = getCharArray(text[p]);
@@ -466,6 +478,7 @@ void TFTSCREEN::drawCustomText(uint8_t x, uint8_t y, const std::string& text, ui
         }
         delete[] charData;
     }
+    
     int startx = x;
     int starty = y;
     int gstartx = 0;
@@ -566,6 +579,7 @@ uint8_t TFTSCREEN::drawIcon(uint8_t x, uint8_t y, uint8_t w, uint16_t color, uin
 			value = 0;
 		}
 	}
+    return 0;
 }
 
 uint8_t TFTSCREEN::drawBitmap(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color, uint16_t bgcolor, uint8_t* pBmp) {
@@ -632,6 +646,7 @@ uint8_t TFTSCREEN::drawBitmap(int16_t x, int16_t y, int16_t w, int16_t h, uint16
     }
 
 	free(buffer);
+    return 0;
 }
 
 uint8_t TFTSCREEN::drawBitmap24(uint8_t x, uint8_t y, uint8_t *pBmp, char w, char h) {

@@ -18,6 +18,14 @@ int main() {
     screen_boot();
     while(true){
         screen_tour();
+        sleep(1);
+        tft.showImageJPG("spi/lib/utils/bg/fondorc2.jpg", 0, 0);
+        //tft.printText(4, 10, "Raspi5 Lib", ST7735_BLACK, ST7735_GREY);
+        //tft.printText(4, 25, "SPI [OK]", ST7735_BLACK, ST7735_GREY);
+        //tft.printText(4, 40, "TFT [OK]", ST7735_BLACK, ST7735_GREY);
+        //tft.printText(4, 55, "BG Light [OK]", ST7735_BLACK, ST7735_GREY);
+        sleep(10);
+        /*
         tft.fillScreen(ST7735_RED);
         tft.drawLine(0, 30, 80, 70, ST7735_WHITE);
         tft.drawFastHLine(0, 50, 80, ST7735_WHITE);
@@ -39,6 +47,7 @@ int main() {
         tft.drawTriangle(10, 50, 60, 2, 120, 50, ST7735_WHITE);
         tft.fillTriangle(10, 100, 60, 150, 120, 100, ST7735_WHITE);
         sleep(3); // wait 1 second
+        */
     }
     sleep(3); // wait 1 second
     std::cout << "Test de SPI terminado." << std::endl;
@@ -77,10 +86,27 @@ void screen_tour(){
     tft.drawLine(64, 85, 74, 75, ST7735_GREY);
     
     tft.drawPixel(64, 96, ST7735_YELLOW);
-    sleep(4); // wait 1 second
+    sleep(1); // wait 1 second
     tft.colorInvert(true);
-    sleep(4); // wait 1 second
+    sleep(1); // wait 1 second
     tft.colorInvert(false);
-    sleep(4); // wait 1 second
+    sleep(1); // wait 1 second
     //-----------------------------------------------------------
+    //_
+    //_
+    //----------------- [ Introduce a LINE ] --------------------
+    tft.fillScreen(ST7735_BLACK);
+    for(int i = 0; i < 128; i=i+10){
+        tft.drawLine(0, 168, i, 4, ST7735_YELLOW);
+        usleep(10000);      
+    }
+    for(int i = 0; i < 164; i=i+10){
+        tft.drawLine(0, 0, 128, i, ST7735_WHITE);
+        usleep(10000);      
+    }
+    for(int i = 0; i < 128; i=i+10){
+        tft.drawLine(64, 100, i, 164, ST7735_BLUE);
+        usleep(10000);      
+    }
+    sleep(2); // wait 1 second
 }
